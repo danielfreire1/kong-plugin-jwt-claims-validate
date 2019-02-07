@@ -1,12 +1,12 @@
-package = "kong-plugin-jwt-claims-validate"
+package = "kong-plugin-jwt-scope-validate"
 version = "1.0-1"
 source = {
-   url = "git+https://github.com/daxko/kong-plugin-jwt-claims-validate.git",
+   url = "git+https://github.com/danielfreire1/kong-plugin-jwt-claims-validate.git",
    tag = "v1.0"
 }
 description = {
-   summary = "A Kong plugin to check JWT claim values",
-   homepage = "https://github.com/wshirey/kong-plugin-jwt-claims-validate",
+   summary = "A Kong plugin to check scope"
+   homepage = "https://github.com/danielfreire1/kong-plugin-jwt-claims-validate",
    license = "MIT"
 }
 dependencies = {
@@ -15,7 +15,7 @@ dependencies = {
 build = {
    type = "builtin",
    modules = {
-      ["kong.plugins.jwt-claims-validate.handler"] = "handler.lua",
-      ["kong.plugins.jwt-claims-validate.schema"] = "schema.lua"
+      ["kong.plugins.jwt-scope-validate.handler"] = "handler.lua",
+      ["kong.plugins.jwt-scope-validate.schema"] = "schema.lua"
    }
 }

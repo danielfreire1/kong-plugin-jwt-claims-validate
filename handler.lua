@@ -7,13 +7,6 @@ local ngx_re_gmatch = ngx.re.gmatch
 local JwtClaimsValidateHandler = BasePlugin:extend()
 
 local function retrieve_token(request, conf)
-  local uri_parameters = request.get_uri_args()
-
-  for _, v in ipairs(conf.uri_param_names) do
-    if uri_parameters[v] then
-      return uri_parameters[v]
-    end
-  end
 
   local authorization_header = request.get_headers()["authorization"]
   if authorization_header then
@@ -31,10 +24,22 @@ local function retrieve_token(request, conf)
       return m[1]
     end
   end
+
 end
 
 function JwtClaimsValidateHandler:new()
   JwtClaimsValidateHandler.super.new(self, "jwt-claims-headers")
+end
+
+function mysplit(inputstr, sep)
+  if sep == nil then
+          sep = "%s"
+  end
+  local t={}
+  for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+          table.insert(t, str)
+  end
+  return t
 end
 
 function JwtClaimsValidateHandler:access(conf)
@@ -55,11 +60,24 @@ function JwtClaimsValidateHandler:access(conf)
     return responses.send_HTTP_INTERNAL_SERVER_ERROR()
   end
 
-  local claims = jwt.claims
-  for claim_key,claim_value in pairs(conf.claims) do
-    if claims[claim_key] == nil or claims[claim_key] ~= claim_value then
-      return responses.send_HTTP_UNAUTHORIZED("JSON Web Token has invalid claim value for '"..claim_key.."'")
+  local scopes_token = mysplit(jwt.claims["scope"], " ")
+  local scopes = mysplit(conf.scope, ",")
+
+  local exists = false
+  for i, value in pairs(scopes) do
+    exists = false
+    for i2, value_scope_token in pairs(scopes_token) do
+      if value_scope_token == value then
+        exists = true
+        break
+      end
     end
+    if not exists then
+      break
+    end
+  end
+  if not exists then
+    return responses.send_HTTP_UNAUTHORIZED("Unautorhized, scope invalid")
   end
 end
 
